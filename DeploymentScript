@@ -1,0 +1,130 @@
+version: '2'
+#Cause Docker stuff
+
+# I should add this here:
+# You might want to add a VPN for security reasons
+# The way you can do this is
+# by having the "network_mode" set to "vpn" and not "host"
+# But then create a vpn service.
+# See super-adventure/vpnScript for an example
+
+services:
+ 
+  # JDownloader
+  # For downloading anything
+  # Make sure to enter the container and run
+  # configure EMAIL PASSWORD
+  jdownloader:
+    container_name: jdownloader
+    image: jaymoulin/jdownloader
+    restart: always
+    network_mode: "host"
+    volumes:
+     - /var/lib/docker/volumes/downloads:/downloads
+     - /var/lib/docker/volumes/jdownloader-config:/opt/JDownloader/cfg
+
+  # qBittorrent
+  # Runs on port 8080
+  # Make sure to turn off UPNP in the settings
+  # Otherwise it will open port 8080 on the WAN side of your router
+  qbittorrent:
+    container_name: qbittorrent
+    image: linuxserver/qbittorrent
+    restart: always
+    network_mode: "host"
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - America/New_York
+     - UMASK_SET=022
+     - WEBUI_PORT=8080
+    volumes:
+     - /var/lib/docker/volumes/qbittorrent-config:/config
+     - /var/lib/docker/volumes/downloads:/downloads
+
+  # Sonarr
+  # For downloading TV
+  # Runs on port 8989
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr
+    restart: always
+    network_mode: "host"
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=Europe/London
+     - UMASK_SET=022
+    volumes:
+     - /var/lib/docker/volumes/sonarr-data:/config
+     - /var/lib/docker/volumes/sonarr-tvseries:/tv
+     - /var/lib/docker/volumes/downloads:/downloads
+
+  # Radarr
+  # For downloading movies
+  # Runs on port 7878
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr
+    restart: always
+    network_mode: "host"
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=Europe/London
+     - UMASK_SET=022
+    volumes:
+     - /var/lib/docker/volumes/radarr-data:/config
+     - /var/lib/docker/volumes/radarr-movies:/movies
+     - /var/lib/docker/volumes/downloads:/downloads
+
+  # Jackett
+  # For adding indexers to Sonarr and Radarr
+  # Runs on port 9117
+  jackett:
+    container_name: jackett
+    image: linuxserver/jackett
+    restart: always
+    network_mode: "host"
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=Europe/London
+     - UMASK_SET=022
+    volumes:
+     - /var/lib/docker/volumes/jackett-data:/config
+     - /var/lib/docker/volumes/jackett-blackhole:/downloads
+
+   
+  # Nzbget
+  # For downloading Usenet files
+  # Runs on port 6789
+  nzbget:
+    container_name: nzbget
+    image: linuxserver/nzbget
+    restart: always
+    network_mode: "host"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /var/lib/docker/volumes/nzbget-config:/config
+      - /var/lib/docker/volumes/downloads:/downloads
+      
+  # Filebrowser
+  # For web management of files
+  # Runs on port 80
+  # To ensure the DB containing your login persists through a rebuild, run the below
+  # mkdir /var/lib/docker/volumes/filebrowser/
+  # touch /var/lib/docker/volumes/filebrowser/filebrowser.db
+  filebrowser:
+    container_name: filebrowser
+    image: filebrowser/filebrowser
+    restart: always
+    volumes:
+      - /var/lib/docker/volumes:/srv
+      - /var/lib/docker/volumes/filebrowser/filebrowser.db:/database.db
+    ports:
+      - 80:80
+
