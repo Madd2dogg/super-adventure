@@ -1,0 +1,77 @@
+Here is an example of how you would use VPN:
+Lets use Private internet access (PIA) for an example (If you google around you can maybe find other ones like NordVPN)
+Here is NordVPN if you use that:
+https://github.com/bubuntux/nordvpn
+
+
+services:
+  # VPN container
+  # All containers force their network traffic through this container
+  pia:
+    container_name: pia
+    image: qmcgaw/private-internet-access
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    network_mode: bridge
+    ports:
+     # Host:Container/tcp|udp
+     # If not specified it will be TCP
+     # PIA
+     - 6881:6881
+     # PIA
+     - 6881:6881/udp
+     # qBittorrent 
+     - 8080:8080
+     # Add more ports here as needed
+    environment:
+      # Change these variables to your own
+      # PIA username and password
+      - USER=XX
+      - PASSWORD=XX
+      # Your PIA region
+      - REGION=Netherlands
+      # Your subnet (type ipconfig to find yours)
+      - EXTRA_SUBNETS=192.168.0.0/24
+      # Don't change anything below here
+      - ENCRYPTION=strong
+      - PROTOCOL=udp
+      - NONROOT=no
+      - DOT=on
+      - BLOCK_MALICIOUS=on
+      - BLOCK_NSA=off
+      - UNBLOCK=
+      - FIREWALL=on
+      - PROXY=on
+      - PROXY_LOG_LEVEL=Critical
+      - PROXY_USER=
+      - PROXY_PASSWORD=
+      
+###############################################################
+#  So this is where you would have the rest of the script     #
+#  I added QBitTorrent so lets add that                       #
+#  Note the "network_mode: service:pia"                       #
+#  This is sending all traffic through PIA                    #
+###############################################################
+
+  # qBittorrent
+  # Runs on port 8080
+  # Make sure to turn off UPNP in the settings (or better yet, disabled UPNP on your router)
+  qbittorrent:
+    container_name: qbittorrent
+    image: linuxserver/qbittorrent
+    restart: always
+    network_mode: service:pia 
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=Europe/London
+     - UMASK_SET=022
+     - WEBUI_PORT=8080
+    volumes:
+     - /var/lib/docker/volumes/qbittorrent-config:/config
+     - /var/lib/docker/volumes/downloads:/downloads
+
+
