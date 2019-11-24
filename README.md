@@ -76,7 +76,7 @@ sudo touch /var/lib/docker/volumes/filebrowser/filebrowser.db
 - Select `stacks` and `add stack`
 - Give the stack a name at the top
 - I called mine `Download-Stack`
-- [Paste the contents of my script into it](https://github.com/Madd2dogg/super-adventure/blob/master/DeploymentScript)
+- [Paste the contents of DeploymentScript into it](https://github.com/Madd2dogg/super-adventure/blob/master/DeploymentScript)
 - Deploy the stack
 - This will take a while depending on your internet connection as it needs to download each container image
 - Once done, you will see all containers running in your containers view
