@@ -65,7 +65,7 @@ docker run -d --restart always -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock
 
 ## Configuring Filebrowser
 - Before we can deploy the containers we need to create the DB file for Filebrowser
-- SSH to the server
+- Login to linux
 - Run
 ```
 sudo mkdir /var/lib/docker/volumes/filebrowser/
